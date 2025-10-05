@@ -144,20 +144,7 @@ class _EnrolNumberState extends State<EnrolNumber> {
                             ),
                           ),
                         ),
-                        Positioned(
-                            bottom: 0,
-                            left: 32,
-                            right: 32,
-                            child: Consumer(
-                                builder: (context, value, child) {
-                                  return ButtonWidget(
-                                    title: "Rudi Nyuma",
-                                    color: blueAccent,
-                                    textColor: white,
-                                    onPressed: () => Navigator.pushNamed(
-                                        context, RoutesName.starting),
-                                  );
-                                }))
+
                       ],
                     ),
                   ],

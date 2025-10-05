@@ -1,14 +1,22 @@
 class RoutesName {
 
   //Splash screen route
-  static const String splash = "splash_screen";
+  static const String splash = "/";
+  static const String languageSelection = "language_selection";
+  static const String englishscreen = "home_en";
+  static const String about = "about_us";
+  static const String swahiliscreen = "home_sw";
+
+  static const String registration = "registration";
+  static const String signIn = "sign_in";
   //page ya kwanza baada ya splash screen
-   static const String starting = "starting";
+   static const String homePage = "starting";
+
 
    //login page ambayo ina phoneNumber
-   static const String loginView = "login_views";
+
    static const String register = "register";
-   static const String registration = "registration";
+
    static const String home = "home_screen";
 
    static const String modulePage = "module";

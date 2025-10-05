@@ -10,6 +10,7 @@ import '../../utils/utils.dart';
 import '../../widget/button_widget.dart';
 
 class LoginViews extends StatelessWidget {
+
   final _phoneController = TextEditingController();
   final _referenceController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
