@@ -1,177 +1,103 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import '../model/register_model.dart';
+import '../repository/registration_repository.dart';
 
-import '../model/user_model.dart';
-import '../repository/auth_repository.dart';
-import '../utils/routes/routes_name.dart';
-import '../utils/utils.dart';
+class RegisterViewModel extends ChangeNotifier {
+  final RegisterRepository _registerRepo = RegisterRepository();
 
-class RegisterViewModel with ChangeNotifier {
-  bool _isLoading = false;
-  bool _isLoadingLocation = false;
+  // -------------------------------
+  //  Loading State
+  // -------------------------------
+  bool _loading = false;
+  bool get loading => _loading;
 
-  // final List<Locations> _location = [];
-
-  String _firstName = '';
-  String _middleName = '';
-  String _lastName = '';
-  String _phone = '';
-  String _email = '';
-  String _searchLocation = '';
-  String _error = '';
-
-  Client? _user;
-
-  final _authRepository = AuthRepository();
-  final TextEditingController searchLocationController =
-      TextEditingController();
-
-  final FocusNode _firstNameFocusNode = FocusNode();
-  final FocusNode _middleNameFocusNode = FocusNode();
-  final FocusNode _lastNameFocusNode = FocusNode();
-  final FocusNode _phoneFocusNode = FocusNode();
-  final FocusNode _emailFocusNode = FocusNode();
-  final FocusNode _searchLocationFocusNode = FocusNode();
-
-  Client? get user => _user;
-
-  bool get isLoading => _isLoading;
-  bool get isLoadingLocation => _isLoadingLocation;
-
-  // List<Locations> get location => _location;
-  String? _selectedLocationId;
-  String? _selectedLocationName;
-
-  String get firstName => _firstName;
-  String get middleName => _middleName;
-  String get lastName => _lastName;
-  String get phone => _phone;
-  String get email => _email;
-  String get searchLocation => _searchLocation;
-
-  String? get selectedLocationId => _selectedLocationId;
-  String? get selectedLocationName => _selectedLocationName;
-  String get error => _error;
-
-  FocusNode get firstNameFocusNode => _firstNameFocusNode;
-  FocusNode get middleNameFocusNode => _middleNameFocusNode;
-  FocusNode get lastNameFocusNode => _lastNameFocusNode;
-  FocusNode get phoneFocusNode => _phoneFocusNode;
-  FocusNode get emailFocusNode => _emailFocusNode;
-  FocusNode get searchLocationFocusNode => _searchLocationFocusNode;
-
-  void setSelectedLocation(String? locationId) {
-    _selectedLocationId = locationId;
+  void setLoading(bool value) {
+    _loading = value;
     notifyListeners();
   }
 
-  void setLoading(bool val) {
-    _isLoading = val;
-    notifyListeners();
-  }
-
-  set firstName(String value) {
-    _firstName = value;
-    notifyListeners();
-  }
-
-  set middleName(String value) {
-    _middleName = value;
-    notifyListeners();
-  }
-
-  set lastName(String value) {
-    _lastName = value;
-    notifyListeners();
-  }
-
-  set phone(String value) {
-    _phone = value;
-    notifyListeners();
-  }
-
-  set email(String value) {
-    _email = value;
-    notifyListeners();
-  }
-
-  set searchLocation(String value) {
-    _searchLocation = value;
-    notifyListeners();
-  }
-
-  Future<dynamic> registerApi(BuildContext context) async {
-    Map<String, dynamic> data = {
-      'first_name': _firstName,
-      'middle_name': _middleName,
-      'last_name': _lastName,
-      'phone': _phone,
-      'email': _email,
-      'location_id': selectedLocationId,
-    };
-
+  // -------------------------------
+  //  Register Function
+  // -------------------------------
+  Future<void> registerUser(RegisterModel model, BuildContext context) async {
     setLoading(true);
 
     try {
-      final value = await _authRepository.registerApi(data);
+      final result = await _registerRepo.registerUser(model.toJson());
+
       setLoading(false);
 
-      if (value['statusCode'] != 200) {
-        if (!context.mounted) return;
-        Utils.flushBar("Taarifa hazikuhifadhiwa, tafadhali jaribu tena",
-            context, "warning");
-      } else {
-        // Remove location_id and add client_id
-        data.remove('location_id');
-        final String clientId = value['clientId'].toString();
-        data['client_id'] = clientId;
+      // Extract generated values from API response
+      final String email = result.email ?? model.email ?? "";
+      final String phone = result.phone ?? model.phone ?? "";
+      final String password = result.password ?? "******"; // From API
 
-        // Map the data to a Client object
-        Client client = Client.fromJson(data);
+      // Show snackbar
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Registration successful!")),
+      );
 
-        // DatabaseHelper databaseHelper = DatabaseHelper();
-        // await databaseHelper.insertClient(client);
+      // Show success dialog
+      _showSuccessDialog(
+        context,
+        email: email,
+        phone: phone,
+        password: password,
+      );
 
-        if (!context.mounted) return;
-        Navigator.pushNamed(context, RoutesName.home);
-      }
-    } catch (error) {
-      setLoading(false);
-
-      if (!context.mounted) return;
-      Utils.flushBar(error.toString(), context, "error");
-    }
-  }
-
-  Future<void> getLocation(BuildContext context) async {
-    _isLoadingLocation = true;
-    _error = '';
-    notifyListeners();
-
-    try {
-      _authRepository.getLocationApi().then((value) async {
-        // final locationData = Location.fromJson(value);
-        // _location.clear();
-        // _location.addAll(locationData.locations ?? []);
-        _isLoadingLocation = false;
-        notifyListeners();
-      }).onError((errorMsg, stackTrace) {
-        _isLoadingLocation = false;
-        _error = 'network';
-        notifyListeners();
-
-        if (!context.mounted) return;
-        Utils.flushBar('Hitilafu ya kimtandao', context, "error");
-      });
     } catch (e) {
-      _isLoadingLocation = false;
-      _error = 'network';
-      notifyListeners();
+      setLoading(false);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Registration failed: $e")));
     }
   }
 
-  @override
-  void dispose() {
-    searchLocationController.dispose();
-    super.dispose();
+  // -------------------------------
+  //  Success Dialog
+  // -------------------------------
+  void _showSuccessDialog(
+      BuildContext context, {
+        required String email,
+        required String phone,
+        required String password,
+      }) {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // User must tap button
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Text(
+            "Registration Successful!",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("📧 Email: $email"),
+              const SizedBox(height: 8),
+              Text("📱 Phone: $phone"),
+              const SizedBox(height: 8),
+              Text("🔑 Password: $password"),
+              const SizedBox(height: 12),
+              const Text(
+                "A confirmation message has been sent to your email.",
+                style: TextStyle(color: Colors.grey),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Close dialog
+                Navigator.pop(context); // Go back to previous screen
+              },
+              child: const Text("Close"),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

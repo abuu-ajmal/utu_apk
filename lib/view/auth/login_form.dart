@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-
+import 'package:provider/provider.dart';
 import '../../utils/routes/routes_name.dart';
+import '../../view_model/auth_view_login.dart';
 
 class SignInPage extends StatefulWidget {
   final String role;
@@ -13,194 +14,181 @@ class SignInPage extends StatefulWidget {
 }
 
 class _SignInPageState extends State<SignInPage> {
-  final _formKey = GlobalKey<FormState>();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController loginController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   bool _obscurePassword = true;
-  bool _isLoading = false;
 
-  void _handleLogin() {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
-
-      // 👉 hapa ndipo utaweka API call ya kuingia (backend yako)
-      Future.delayed(const Duration(seconds: 2), () {
-        setState(() {
-          _isLoading = false;
-        });
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Logged in successfully as ${widget.role}"),
+  Widget neumorphicField({required Widget child}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF0F0F3),
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: const [
+          BoxShadow(
+            offset: Offset(-4, -4),
+            blurRadius: 8,
+            color: Colors.white,
           ),
-        );
-      });
-    }
+          BoxShadow(
+            offset: Offset(4, 4),
+            blurRadius: 8,
+            color: Color(0xFFA7A9AF),
+          ),
+        ],
+      ),
+      child: child,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final loginVM = Provider.of<AuthViewModel>(context);
+
     return Scaffold(
-      backgroundColor: const Color(0xFFE3F2FD),
-      appBar: AppBar(
-        title: Text("Sign In - ${widget.role}"),
-        backgroundColor: const Color(0xFF0288D1),
-        centerTitle: true,
-      ),
+      backgroundColor: const Color(0xFFF5F7FA),
       body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            elevation: 5,
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.lock_outline,
-                        size: 80, color: Color(0xFF0288D1)),
-                    const SizedBox(height: 20),
-
-                    Text(
-                      "Welcome, ${widget.role}",
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF0288D1),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      "Please sign in to continue",
-                      style: TextStyle(fontSize: 16, color: Colors.black54),
-                    ),
-                    const SizedBox(height: 30),
-
-                    // Email
-                    TextFormField(
-                      controller: _emailController,
-                      decoration: InputDecoration(
-                        labelText: "Email",
-                        prefixIcon: const Icon(Icons.email),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Please enter your email";
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Password
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: _obscurePassword,
-                      decoration: InputDecoration(
-                        labelText: "Password",
-                        prefixIcon: const Icon(Icons.lock),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_off
-                                : Icons.visibility,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _obscurePassword = !_obscurePassword;
-                            });
-                          },
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Please enter your password";
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 30),
-
-                    // Login Button
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _isLoading ? null : _handleLogin,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF0288D1),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: _isLoading
-                            ? const CircularProgressIndicator(
-                          color: Colors.white,
-                        )
-                            : const Text(
-                          "Sign In",
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 15),
-
-                    // Sign Up Option
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text("Don't have an account? "),
-                        TextButton(
-                          onPressed: () {
-                            // Safisha navigation na tuma role + language
-                            Navigator.pushNamed(
-                              context,
-                              RoutesName.registration, // route ya SignUpPage
-
-                            );
-                          },
-                          child: const Text("Sign Up"),
-                        ),
-                      ],
-                    ),
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text("Check Home Page "),
-                        TextButton(
-                          onPressed: () {
-                            // Safisha navigation na tuma role + language
-                            Navigator.pushNamed(
-                              context,
-                              RoutesName.homePage, // route ya SignUpPage
-
-                            );
-                          },
-                          child: const Text("HomePage"),
-                        ),
-                      ],
-                    ),
-
-                  ],
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+            margin: const EdgeInsets.symmetric(horizontal: 20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
                 ),
-              ),
+              ],
+            ),
+            width: 380,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const CircleAvatar(
+                  radius: 45,
+                  backgroundImage: AssetImage('assets/images/plus.png'),
+                  backgroundColor: Colors.transparent,
+                ),
+                const SizedBox(height: 20),
+
+                const Text(
+                  'Welcome Back!',
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF2D3142),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Please login to continue to your account',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Color(0xFF6B7280),
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 32),
+
+                // 🌟 NEUMORPHIC LOGIN FIELD
+                neumorphicField(
+                  child: TextField(
+                    controller: loginController,
+                    decoration: const InputDecoration(
+                      labelText: 'Email or Phone',
+                      prefixIcon: Icon(Icons.person_outline),
+                      border: InputBorder.none,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // 🌟 NEUMORPHIC PASSWORD FIELD
+                neumorphicField(
+                  child: TextField(
+                    controller: passwordController,
+                    obscureText: _obscurePassword,
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      prefixIcon: const Icon(Icons.lock_outline),
+                      border: InputBorder.none,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                          color: Colors.grey,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscurePassword = !_obscurePassword;
+                          });
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 25),
+
+                loginVM.loading
+                    ? const CircularProgressIndicator()
+                    : ElevatedButton(
+                  onPressed: () {
+                    final login = loginController.text.trim();
+                    final password = passwordController.text.trim();
+                    if (login.isEmpty || password.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Please fill all fields')),
+                      );
+                      return;
+                    }
+                    loginVM.login(login, password, context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 50),
+                    backgroundColor: const Color(0xFF2563EB),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    elevation: 3,
+                  ),
+                  child: const Text(
+                    'Login',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      RoutesName.registration,
+                      arguments: {
+                        "role": widget.role,
+                        "language": widget.initialLanguage,
+                      },
+                    );
+                  },
+                  child: const Text(
+                    "Don't have an account? Register here",
+                    style: TextStyle(
+                      color: Color(0xFF2563EB),
+                      fontWeight: FontWeight.w500,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),

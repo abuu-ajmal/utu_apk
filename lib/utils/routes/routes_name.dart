@@ -5,12 +5,17 @@ class RoutesName {
   static const String languageSelection = "language_selection";
   static const String englishscreen = "home_en";
   static const String about = "about_us";
+  static const String changePassword = "change_password";
   static const String swahiliscreen = "home_sw";
 
   static const String registration = "registration";
   static const String signIn = "sign_in";
   //page ya kwanza baada ya splash screen
    static const String homePage = "starting";
+
+  static const String identity = "identity";
+  static const String viewProffessional = "view_proffessional";
+  static const String addProffessional = "add_proffessional";
 
 
    //login page ambayo ina phoneNumber

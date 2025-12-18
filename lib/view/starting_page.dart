@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../utils/routes/routes_name.dart';
+
 class HomePage extends StatefulWidget {
-  final String initialLanguage; // "Swahili" or "English"
+  final String initialLanguage;
 
   const HomePage({super.key, required this.initialLanguage});
 
@@ -11,6 +13,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late bool isSwahili;
+  bool showRegistrationMenu = false;
 
   @override
   void initState() {
@@ -24,10 +27,18 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  // Open registration expandable menu
+  void toggleRegistrationMenu() {
+    setState(() {
+      showRegistrationMenu = !showRegistrationMenu;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
+
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -35,11 +46,9 @@ class _HomePageState extends State<HomePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              isSwahili ? "Afya Mtaani" : "Doctor Appointment",
+              isSwahili ? "Afya Nyumbani" : "Doctor Appointment",
               style: const TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 22),
+                  color: Colors.black, fontWeight: FontWeight.bold, fontSize: 22),
             ),
             Text(
               isSwahili
@@ -56,138 +65,217 @@ class _HomePageState extends State<HomePage> {
           ),
           IconButton(
             icon: const Icon(Icons.person_outline, color: Colors.green),
-            onPressed: () {
-              // TODO: User profile page
-            },
+            onPressed: () {},
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            // Top card and logo
-            Stack(
-              clipBehavior: Clip.none,
-              alignment: Alignment.center,
-              children: [
-                Card(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25)),
-                  elevation: 6,
-                  shadowColor: Colors.green.shade200,
-                  child: Container(
-                    width: double.infinity,
-                    constraints: const BoxConstraints(
-                      minHeight: 180,
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 40, horizontal: 20),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(25),
-                      gradient: LinearGradient(
-                        colors: [Colors.green.shade400, Colors.green.shade200],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                          isSwahili ? "Karibu!" : "Welcome!",
-                          style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          isSwahili
-                              ? "Panga miadi yako na daktari haraka"
-                              : "Book your doctor’s appointment easily",
-                          style: const TextStyle(color: Colors.white70, fontSize: 16),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: 135,
-                  child: CircleAvatar(
-                    radius: 55,
-                    backgroundColor: Colors.white,
-                    backgroundImage: AssetImage('assets/images/plus.png'),
-                  ),
-                ),
-              ],
-            ),
 
-            const SizedBox(height: 60),
+      body: Stack(
+        children: [
+          // MAIN PAGE CONTENT
+          mainPageContent(),
 
-            // Feature cards grid
-            Expanded(
-              child: GridView.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                childAspectRatio: 0.8,
-                children: [
-                  buildFeatureCard(
-                    icon: Icons.person_search,
-                    title: isSwahili ? "Tafuta Daktari" : "Find Doctor",
-                    subtitle: isSwahili
-                        ? "Pata daktari kulingana na utaalamu"
-                        : "Search doctors by specialty",
-                    colors: [Colors.green.shade400, Colors.green.shade200],
-                  ),
-                  buildFeatureCard(
-                    icon: Icons.event_available,
-                    title: isSwahili ? "Miadi Yangu" : "My Appointments",
-                    subtitle: isSwahili
-                        ? "Angalia na thibiti miadi yako"
-                        : "View & manage your appointments",
-                    colors: [Colors.orange.shade400, Colors.orange.shade200],
-                  ),
-                  buildFeatureCard(
-                    icon: Icons.folder_shared,
-                    title: isSwahili ? "Rekodi za Afya" : "Health Records",
-                    subtitle: isSwahili
-                        ? "Historia ya vipimo na matibabu"
-                        : "Your health history & reports",
-                    colors: [Colors.blue.shade400, Colors.blue.shade200],
-                  ),
-                  buildFeatureCard(
-                    icon: Icons.info_outline,
-                    title: isSwahili ? "Kuhusu" : "About",
-                    subtitle: isSwahili
-                        ? "Jua zaidi kuhusu huduma"
-                        : "Learn more about this service",
-                    colors: [Colors.purple.shade400, Colors.purple.shade200],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+          // REGISTRATION EXPANDABLE MENU
+          if (showRegistrationMenu) registrationMenu(),
+        ],
       ),
+
       bottomNavigationBar: BottomNavigationBar(
         selectedItemColor: Colors.green,
         unselectedItemColor: Colors.grey,
-        currentIndex: 0,
+        currentIndex: showRegistrationMenu ? 1 : 0,
+        onTap: (index) {
+          if (index == 1) {
+            toggleRegistrationMenu();
+          }
+        },
         items: [
           BottomNavigationBarItem(
             icon: const Icon(Icons.home),
             label: isSwahili ? "Nyumbani" : "Home",
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.event_note),
-            label: isSwahili ? "Miadi" : "Appointments",
+            icon: const Icon(Icons.app_registration),
+            label: isSwahili ? "Usajili" : "Registration",
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.settings),
             label: isSwahili ? "Mipangilio" : "Settings",
           ),
+        ],
+      ),
+    );
+  }
+
+  // =============================
+  // MAIN HOME CONTENT
+  // =============================
+  Widget mainPageContent() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: Column(
+        children: [
+          // Top Banner Card
+          Stack(
+            clipBehavior: Clip.none,
+            alignment: Alignment.center,
+            children: [
+              Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(25),
+                  gradient: LinearGradient(
+                    colors: [Colors.green.shade400, Colors.green.shade200],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 20),
+                child: Column(
+                  children: [
+                    Text(
+                      isSwahili ? "Karibu!" : "Welcome!",
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      isSwahili
+                          ? "Panga miadi yako na daktari haraka"
+                          : "Book your doctor’s appointment easily",
+                      style: const TextStyle(color: Colors.white70, fontSize: 16),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+              Positioned(
+                top: 130,
+                child: CircleAvatar(
+                  radius: 50,
+                  backgroundColor: Colors.white,
+                  backgroundImage: const AssetImage('assets/images/plus.png'),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 70),
+
+          // 2 Cards per row
+          Expanded(
+            child: GridView.count(
+              crossAxisCount: 2,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+              childAspectRatio: 2 / 3,
+              children: [
+                buildFeatureCard(
+                  icon: Icons.person_search,
+                  title: isSwahili ? "Tafuta Daktari" : "Find Doctor",
+                  subtitle: isSwahili
+                      ? "Pata daktari kulingana na utaalamu"
+                      : "Search doctors by specialty",
+                  colors: [Colors.green.shade400, Colors.green.shade200],
+                ),
+                buildFeatureCard(
+                  icon: Icons.event_available,
+                  title: isSwahili ? "Miadi Yangu" : "My Appointments",
+                  subtitle: isSwahili
+                      ? "Angalia miadi yako"
+                      : "View your appointments",
+                  colors: [Colors.orange.shade400, Colors.orange.shade200],
+                ),
+                buildFeatureCard(
+                  icon: Icons.folder_shared,
+                  title: isSwahili ? "Rekodi za Afya" : "Health Records",
+                  subtitle: isSwahili
+                      ? "Historia ya vipimo na matibabu"
+                      : "Your medical records",
+                  colors: [Colors.blue.shade400, Colors.blue.shade200],
+                ),
+                buildFeatureCard(
+                  icon: Icons.info_outline,
+                  title: isSwahili ? "Kuhusu" : "About",
+                  subtitle: isSwahili
+                      ? "Maelezo kuhusu huduma"
+                      : "Learn about this service",
+                  colors: [Colors.purple.shade400, Colors.purple.shade200],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // =============================
+  // REGISTRATION EXPANDABLE MENU
+  // =============================
+  Widget registrationMenu() {
+    return Positioned(
+      bottom: 60,
+      left: 0,
+      right: 0,
+      child: Container(
+        margin: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(22),
+          boxShadow: [
+            BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 4))
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            menuItem(
+              icon: Icons.credit_card,
+              text: "Identity Registration",
+              onTap: () {
+                Navigator.pushNamed(context, RoutesName.identity);
+              },
+            ),
+            const Divider(),
+            menuItem(
+              icon: Icons.school,
+              text: "View Professional",
+              onTap: () {
+                Navigator.pushNamed(context, RoutesName.viewProffessional);
+              },
+            ),
+            const Divider(),
+            menuItem(
+              icon: Icons.access_time_filled,
+              text: "Add Professional",
+              onTap: () {
+                Navigator.pushNamed(context, RoutesName.addProffessional);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget menuItem({required IconData icon, required String text, required VoidCallback onTap}) {
+    return InkWell(
+      onTap: onTap,
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.green, size: 28),
+          const SizedBox(width: 12),
+          Text(
+            text,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          )
         ],
       ),
     );
@@ -204,9 +292,7 @@ class _HomePageState extends State<HomePage> {
       shadowColor: Colors.grey.shade400,
       child: InkWell(
         borderRadius: BorderRadius.circular(25),
-        onTap: () {
-          // TODO: Navigate to feature page
-        },
+        onTap: () {},
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(25),
@@ -216,21 +302,28 @@ class _HomePageState extends State<HomePage> {
               end: Alignment.bottomRight,
             ),
           ),
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(14),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 45, color: Colors.white),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: const BoxDecoration(
+                  color: Colors.white24,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, size: 40, color: Colors.white),
+              ),
               const SizedBox(height: 12),
               Text(title,
                   style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 17,
+                      fontSize: 16,
                       color: Colors.white),
                   textAlign: TextAlign.center),
-              const SizedBox(height: 6),
+              const SizedBox(height: 5),
               Text(subtitle,
-                  style: const TextStyle(fontSize: 13, color: Colors.white70),
+                  style: const TextStyle(fontSize: 12, color: Colors.white70),
                   textAlign: TextAlign.center),
             ],
           ),
@@ -239,3 +332,5 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+
+

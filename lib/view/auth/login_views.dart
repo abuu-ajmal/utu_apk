@@ -18,60 +18,7 @@ class LoginViews extends StatelessWidget {
   final LoginRepository _authRepository = LoginRepository();
   final SessionManager _sessionManager = SessionManager();
 
-  // Login function
-  void _login(BuildContext context) async {
-    if (_formKey.currentState?.validate() ?? false) {
-      final data = {
-        'phone_no': _phoneController.text,
-        'reference_no': _referenceController.text,
-      };
 
-      try {
-        // Call repository to perform login
-        final LoginResponse response = await _authRepository.loginClient(data);
-
-        if (response.message == 'login seccessfully') {
-          // Save session data
-          await _sessionManager.saveUserData(
-            clientId: response.clientId ?? 0,
-            firstName: response.firstName ?? '',
-            middleName: response.middleName ?? '',
-            lastName: response.lastName ?? '',
-            phoneNo: response.phoneNo ?? '',
-            gender: response.gender ?? '',
-            email: response.email ?? '',
-          );
-
-          // Show success message
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Login Successful. Welcome, ${response.phoneNo}!'),
-              backgroundColor: Colors.green,
-            ),
-          );
-
-          // Navigate to the home page
-          Navigator.pushReplacementNamed(context, RoutesName.home);
-        } else {
-          // Show login failure message
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(response.message ?? 'Login failed.'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      } catch (e) {
-        // Handle any exception that occurs during login
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
 
   // Validate phone number
   String? _validatePhone(String? value) {
@@ -191,7 +138,7 @@ class LoginViews extends StatelessWidget {
                                     title: "Ingia Ndani",
                                     color: blue,
                                     textColor: white,
-                                    onPressed: () => _login(context),
+                                    onPressed: () => (context),
                                   ),
                                   const SizedBox(height: 30),
                                   Utils.orDivider('Au Jisajili'),
